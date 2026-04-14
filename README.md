@@ -173,8 +173,3 @@ go run ./cmd/app
 ✅ Unit tests
 📊 Reports export
 🤖 AI finance assistant
-
-## 👨‍💻 Author
-
-**Alizhomart Shukayev**
-GitHub: https://github.com/alizhomarts
