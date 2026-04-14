@@ -22,4 +22,17 @@ var (
 	ErrInvalidAuthHeader    = errors.New("invalid authorization header")
 	ErrInvalidToken         = errors.New("invalid token")
 	ErrInvalidTokenType     = errors.New("invalid token type")
+
+	ErrTransactionNotFound    = errors.New("transaction not found")
+	ErrInvalidTransactionType = errors.New("invalid transaction type")
+	ErrInvalidAmount          = errors.New("invalid amount")
+	ErrInvalidDescription     = errors.New("invalid description")
+
+	ErrCategoryNotFound    = errors.New("category not found")
+	ErrInvalidCategoryName = errors.New("invalid category name")
+
+	ErrInvalidMonth = errors.New("invalid month format, expected YYYY-MM")
+
+	ErrInvalidBudgetAmount = errors.New("invalid budget amount")
+	ErrBudgetNotFound      = errors.New("budget not found")
 )

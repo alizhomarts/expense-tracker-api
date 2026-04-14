@@ -1,9 +1,14 @@
 package entity
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"time"
+)
 
 type Category struct {
-	ID   uuid.UUID
-	Name string
-	Type TransactionType
+	ID        uuid.UUID
+	UserID    *uuid.UUID
+	Name      string
+	Type      TransactionType
+	CreatedAt time.Time
 }

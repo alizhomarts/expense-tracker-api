@@ -4,41 +4,56 @@ import (
 	"errors"
 	"expense-tracker-api/internal/apperror"
 	"expense-tracker-api/internal/dto"
+	"expense-tracker-api/internal/logger"
 	"expense-tracker-api/internal/service"
-	"expense-tracker-api/logger"
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
 type AuthHandler struct {
-	authService *service.AuthService
+	service *service.AuthService
 }
 
-func NewAuthHandler(authService *service.AuthService) *AuthHandler {
-	return &AuthHandler{authService: authService}
+func NewAuthHandler(service *service.AuthService) *AuthHandler {
+	return &AuthHandler{service: service}
 }
 
 func (h *AuthHandler) Register(c echo.Context) error {
-	logger.Log.Info("user registration started")
-
 	var req dto.RegisterRequest
 
 	if err := c.Bind(&req); err != nil {
+		logger.Log.WithError(err).Error("bind register request failed")
+
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"error": apperror.InvalidRequestBody.Error(),
 		})
 	}
 
-	resp, err := h.authService.Register(c.Request().Context(), &req)
+	logger.Log.WithFields(logrus.Fields{
+		"email":      req.Email,
+		"first_name": req.FirstName,
+		"last_name":  req.LastName,
+	}).Info("register request received")
+
+	resp, err := h.service.Register(c.Request().Context(), &req)
 	if err != nil {
-		logger.Log.WithError(err).Error("failed to register user")
 		switch {
 		case errors.Is(err, apperror.ErrUserAlreadyExists):
+			logger.Log.WithFields(logrus.Fields{
+				"email": req.Email,
+				"error": err.Error(),
+			}).Warn("register failed: user already exists")
+
 			return c.JSON(http.StatusConflict, map[string]string{
 				"error": apperror.ErrUserAlreadyExists.Error(),
 			})
 		default:
+			logger.Log.WithFields(logrus.Fields{
+				"email": req.Email,
+				"error": err.Error(),
+			}).Error("register failed")
+
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				"error": apperror.InternalServer.Error(),
 			})
@@ -56,24 +71,43 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	var req dto.LoginRequest
 
 	if err := c.Bind(&req); err != nil {
+		logger.Log.WithError(err).Error("bind login request failed")
+
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"error": apperror.InvalidRequestBody.Error(),
 		})
 	}
 
-	resp, err := h.authService.Login(c.Request().Context(), &req)
+	logger.Log.WithFields(logrus.Fields{
+		"email": req.Email,
+	}).Info("login request received")
+
+	resp, err := h.service.Login(c.Request().Context(), &req)
 	if err != nil {
 		switch {
 		case errors.Is(err, apperror.ErrInvalidCredentials):
+			logger.Log.WithFields(logrus.Fields{
+				"email": req.Email,
+			}).Warn("login failed: invalid credentials")
+
 			return c.JSON(http.StatusUnauthorized, map[string]string{
 				"error": apperror.Unauthorized.Error(),
 			})
 		default:
+			logger.Log.WithFields(logrus.Fields{
+				"email": req.Email,
+				"error": err.Error(),
+			}).Error("login failed")
+
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				"error": apperror.InternalServer.Error(),
 			})
 		}
 	}
+
+	logger.Log.WithFields(logrus.Fields{
+		"email": req.Email,
+	}).Info("user logged in successfully")
 
 	return c.JSON(http.StatusOK, resp)
 }
@@ -82,24 +116,39 @@ func (h *AuthHandler) Refresh(c echo.Context) error {
 	var req dto.RefreshTokenRequest
 
 	if err := c.Bind(&req); err != nil {
+		logger.Log.WithError(err).Error("bind refresh token request failed")
+
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"error": apperror.InvalidRequestBody.Error(),
 		})
 	}
 
-	resp, err := h.authService.RefreshToken(c.Request().Context(), req.RefreshToken)
+	logger.Log.Info("refresh token request received")
+
+	resp, err := h.service.RefreshToken(c.Request().Context(), req.RefreshToken)
 	if err != nil {
 		switch {
-		case errors.Is(err, apperror.ErrInvalidToken), errors.Is(err, apperror.ErrInvalidTokenType):
+		case errors.Is(err, apperror.ErrInvalidToken),
+			errors.Is(err, apperror.ErrInvalidTokenType):
+			logger.Log.WithFields(logrus.Fields{
+				"error": err.Error(),
+			}).Warn("refresh token failed: invalid token")
+
 			return c.JSON(http.StatusUnauthorized, map[string]string{
 				"error": apperror.Unauthorized.Error(),
 			})
 		default:
+			logger.Log.WithFields(logrus.Fields{
+				"error": err.Error(),
+			}).Error("refresh token failed")
+
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				"error": apperror.InternalServer.Error(),
 			})
 		}
 	}
+
+	logger.Log.Info("tokens refreshed successfully")
 
 	return c.JSON(http.StatusOK, resp)
 }

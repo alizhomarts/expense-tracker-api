@@ -23,14 +23,14 @@ const (
 )
 
 type AuthService struct {
-	userRepo      repository.UserRepository
+	repo          repository.UserRepository
 	accessSecret  string
 	refreshSecret string
 }
 
-func NewAuthService(userRepo repository.UserRepository, accessSecret, refreshSecret string) *AuthService {
+func NewAuthService(repo repository.UserRepository, accessSecret, refreshSecret string) *AuthService {
 	return &AuthService{
-		userRepo:      userRepo,
+		repo:          repo,
 		accessSecret:  accessSecret,
 		refreshSecret: refreshSecret,
 	}
@@ -46,7 +46,7 @@ func (s *AuthService) Register(ctx context.Context, req *dto.RegisterRequest) (*
 	if req.Password == "" {
 		return nil, apperror.ErrPasswordRequired
 	}
-	_, err := s.userRepo.GetByEmail(ctx, req.Email)
+	_, err := s.repo.GetByEmail(ctx, req.Email)
 	if err != nil && !errors.Is(err, apperror.ErrUserNotFound) {
 		return nil, fmt.Errorf("check user by email: %w", err)
 	}
@@ -63,7 +63,7 @@ func (s *AuthService) Register(ctx context.Context, req *dto.RegisterRequest) (*
 		LastName:     req.LastName,
 	}
 
-	err = s.userRepo.Create(ctx, user)
+	err = s.repo.Create(ctx, user)
 	if err != nil {
 		return nil, fmt.Errorf("create user: %w", err)
 	}
@@ -72,7 +72,7 @@ func (s *AuthService) Register(ctx context.Context, req *dto.RegisterRequest) (*
 }
 
 func (s *AuthService) Login(ctx context.Context, req *dto.LoginRequest) (*dto.AuthResponse, error) {
-	user, err := s.userRepo.GetByEmail(ctx, req.Email)
+	user, err := s.repo.GetByEmail(ctx, req.Email)
 	if err != nil {
 		if errors.Is(err, apperror.ErrUserNotFound) {
 			return nil, apperror.ErrInvalidCredentials
@@ -102,11 +102,22 @@ func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*d
 }
 
 func (s *AuthService) ParseToken(tokenString string, expectedType string) (uuid.UUID, error) {
+	var secret string
+
+	switch expectedType {
+	case TokenTypeAccess:
+		secret = s.accessSecret
+	case TokenTypeRefresh:
+		secret = s.refreshSecret
+	default:
+		return uuid.Nil, apperror.ErrInvalidTokenType
+	}
+
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if token.Method == nil || token.Method.Alg() != jwt.SigningMethodHS256.Alg() {
 			return nil, apperror.ErrInvalidToken
 		}
-		return []byte(s.refreshSecret), nil
+		return []byte(secret), nil
 	})
 	if err != nil {
 		return uuid.Nil, apperror.ErrInvalidToken
@@ -121,12 +132,12 @@ func (s *AuthService) ParseToken(tokenString string, expectedType string) (uuid.
 		return uuid.Nil, apperror.ErrInvalidToken
 	}
 
-	tokenType, ok := claims["type"].(string)
+	claimType, ok := claims["type"].(string)
 	if !ok {
 		return uuid.Nil, apperror.ErrInvalidToken
 	}
 
-	if tokenType != expectedType {
+	if claimType != expectedType {
 		return uuid.Nil, apperror.ErrInvalidTokenType
 	}
 
