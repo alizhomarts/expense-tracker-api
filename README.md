@@ -14,23 +14,23 @@ REST API for personal finance management built with **Go, Echo, PostgreSQL, and 
 Expense Tracker API is a backend service for managing personal finances.
 
 It supports:
-- transactions
-- categories
-- budgets
-- summaries
-- 🤖 AI-powered parsing, insights, and receipt processing
+- Transactions
+- Categories
+- Budgets
+- Summaries
+- AI-powered parsing, insights, budget alerts, and receipt processing
 
 ---
 
 ## ✨ Features
 
 ### 🔐 Authentication
-- User registration & login
-- JWT access & refresh tokens
+- User registration and login
+- JWT access and refresh tokens
 - Protected routes
 
 ### 💸 Transactions
-- Create / read / update / delete transactions
+- Create, read, update, and delete transactions
 - User-specific data isolation
 
 ### 🗂 Categories
@@ -38,15 +38,24 @@ It supports:
 - Auto-create categories via AI
 
 ### 📊 Summary
-- Total income / expenses / balance
+- Total income, expenses, and balance
 - Monthly summary
 - Category breakdown
 
 ### 💰 Budgets
 - Monthly budgets per category
 - Budget status tracking
-- Remaining amount & usage %
+- Remaining amount and usage percentage
 - Exceeded budget detection
+
+### 🤖 AI Features
+- Parse transaction from text
+- Parse and create transaction automatically
+- Generate financial insights
+- Generate AI budget alerts
+- Parse receipt text
+- Convert receipt into one transaction
+- Convert receipt into multiple transactions
 
 ---
 
@@ -59,14 +68,13 @@ Convert text into structured transaction:
 ```json
 "Yandex Taxi 1800"
 
-↓
-
 {
   "intent": "expense",
   "amount": 1800,
   "category": "transport",
   "description": "Yandex Taxi ride"
 }
+
 🧾 Receipt parsing
 Magnum
 Хлеб 350
@@ -74,25 +82,28 @@ Magnum
 Курица 2800
 Итого 3770
 
-↓
-
 {
   "merchant": "Magnum",
   "total_amount": 3770,
   "items": [...]
 }
+
 ⚡ Receipt → Transaction
 
 Automatically creates transaction from receipt:
 
 POST /api/v1/ai/receipt-to-transaction
+
 📈 Insights
 Spending analysis
 AI-generated financial insights
+
 🚨 Budget alerts
 AI-generated warnings
 Detect overspending
 Suggest improvements
+
+
 🧱 Tech Stack
 Go
 Echo
@@ -101,7 +112,10 @@ pgx
 JWT
 Logrus
 OpenAI API
+
+
 📂 Project Structure
+
 cmd/app              - entry point
 db/migrations        - database migrations
 internal/
@@ -115,13 +129,17 @@ internal/
   logger/            - logging
   repository/        - DB layer
   service/           - business logic
+  
+  
 🔗 API Endpoints
+
 Auth
 POST /api/v1/auth/register
 POST /api/v1/auth/login
 POST /api/v1/auth/refresh
 User
 GET /api/v1/users/me
+
 Transactions
 POST /api/v1/transactions
 GET /api/v1/transactions
@@ -131,14 +149,17 @@ DELETE /api/v1/transactions/:id
 Categories
 POST /api/v1/categories
 GET /api/v1/categories
+
 Summary
 GET /api/v1/summary
 GET /api/v1/summary/categories
 GET /api/v1/summary/monthly?month=YYYY-MM
+
 Budgets
 POST /api/v1/budgets
 GET /api/v1/budgets
 GET /api/v1/budgets/status?month=YYYY-MM
+
 AI
 POST /api/v1/ai/parse
 POST /api/v1/ai/parse-and-create
@@ -146,6 +167,9 @@ GET /api/v1/ai/insights?month=YYYY-MM
 GET /api/v1/ai/budget-alerts?month=YYYY-MM
 POST /api/v1/ai/parse-receipt
 POST /api/v1/ai/receipt-to-transaction
+POST /api/v1/ai/receipt-to-transactions
+
+
 ⚙️ Environment
 
 Create .env:
@@ -163,10 +187,11 @@ JWT_REFRESH_SECRET=your_refresh_secret
 
 OPENAI_API_KEY=your_api_key
 OPENAI_MODEL=gpt-5.3-chat-latest
-▶️ Run
-go run ./cmd/app
+
+▶️ Run go run ./cmd/app
+
+
 🧪 Future Improvements
-📦 Receipt → multiple transactions
 🖼 OCR for receipt images
 📄 Swagger documentation
 🐳 Docker support
