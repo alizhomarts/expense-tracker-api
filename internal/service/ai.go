@@ -711,6 +711,80 @@ func (s *AIService) ReceiptToTransaction(ctx context.Context, userID uuid.UUID, 
 	return s.transactionService.Create(ctx, userID, req)
 }
 
+func (s *AIService) ReceiptToTransactions(
+	ctx context.Context,
+	userID uuid.UUID,
+	text string,
+) ([]*dto.TransactionResponse, error) {
+	if userID == uuid.Nil {
+		return nil, apperror.ErrUserRequired
+	}
+
+	text = strings.TrimSpace(text)
+	if text == "" {
+		return nil, apperror.InvalidRequestBody
+	}
+
+	parsed, err := s.ParseReceiptText(ctx, text)
+	if err != nil {
+		return nil, fmt.Errorf("parse receipt: %w", err)
+	}
+
+	if len(parsed.Items) == 0 {
+		return nil, fmt.Errorf("receipt items are empty")
+	}
+
+	receiptCategory := strings.TrimSpace(strings.ToLower(parsed.SuggestedCategory))
+	if receiptCategory == "" {
+		receiptCategory = "other"
+	}
+
+	transactions := make([]*dto.TransactionResponse, 0, len(parsed.Items))
+
+	for _, item := range parsed.Items {
+		item.Name = strings.TrimSpace(item.Name)
+
+		if item.Name == "" || item.Amount <= 0 {
+			continue
+		}
+
+		category, err := s.categoryService.GetOrCreate(
+			ctx,
+			userID,
+			receiptCategory,
+			entity.TransactionTypeExpense,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("get or create category for receipt item: %w", err)
+		}
+
+		description := item.Name
+		if parsed.Merchant != "" {
+			description = fmt.Sprintf("%s - %s", parsed.Merchant, item.Name)
+		}
+
+		req := &dto.CreateTransactionRequest{
+			Type:        string(entity.TransactionTypeExpense),
+			Amount:      item.Amount,
+			Description: description,
+			CategoryID:  category.ID,
+		}
+
+		transaction, err := s.transactionService.Create(ctx, userID, req)
+		if err != nil {
+			return nil, fmt.Errorf("create transaction from receipt item: %w", err)
+		}
+
+		transactions = append(transactions, transaction)
+	}
+
+	if len(transactions) == 0 {
+		return nil, fmt.Errorf("no valid receipt items to create transactions")
+	}
+
+	return transactions, nil
+}
+
 func (s *AIService) callOpenAI(ctx context.Context, requestBody map[string]any) ([]byte, error) {
 	bodyBytes, err := json.Marshal(requestBody)
 	if err != nil {

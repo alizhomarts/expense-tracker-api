@@ -74,4 +74,5 @@ func Routes(
 	ai.GET("/budget-alerts", aiHandler.BudgetAlerts)
 	ai.POST("/parse-receipt", aiHandler.ParseReceipt)
 	ai.POST("/receipt-to-transaction", aiHandler.ReceiptToTransaction)
+	ai.POST("/receipt-to-transactions", aiHandler.ReceiptToTransactions)
 }

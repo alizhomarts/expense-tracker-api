@@ -296,3 +296,53 @@ func (h *AIHandler) ReceiptToTransaction(c echo.Context) error {
 
 	return c.JSON(http.StatusCreated, resp)
 }
+
+func (h *AIHandler) ReceiptToTransactions(c echo.Context) error {
+	var req dto.AIReceiptParseRequest
+
+	if err := c.Bind(&req); err != nil {
+		logger.Log.WithError(err).Error("bind receipt-to-transactions request failed")
+
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": apperror.InvalidRequestBody.Error(),
+		})
+	}
+
+	req.Text = strings.TrimSpace(req.Text)
+	if req.Text == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": apperror.InvalidRequestBody.Error(),
+		})
+	}
+
+	userID, err := mymiddleware.GetUserID(c)
+	if err != nil {
+		logger.Log.WithError(err).Error("get user id from context failed")
+
+		return c.JSON(http.StatusUnauthorized, map[string]string{
+			"error": apperror.Unauthorized.Error(),
+		})
+	}
+
+	logger.Log.WithFields(logrus.Fields{
+		"user_id": userID,
+	}).Info("receipt-to-transactions request received")
+
+	resp, err := h.aiService.ReceiptToTransactions(
+		c.Request().Context(),
+		userID,
+		req.Text,
+	)
+	if err != nil {
+		logger.Log.WithFields(logrus.Fields{
+			"user_id": userID,
+			"error":   err.Error(),
+		}).Error("receipt-to-transactions failed")
+
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": apperror.InternalServer.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusCreated, resp)
+}
