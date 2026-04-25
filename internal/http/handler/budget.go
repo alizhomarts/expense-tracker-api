@@ -25,6 +25,15 @@ func NewBudgetHandler(budgetService *service.BudgetService) *BudgetHandler {
 	}
 }
 
+// CreateBudget godoc
+// @Summary Create budget
+// @Tags budgets
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body dto.CreateBudgetRequest true "Budget"
+// @Success 201 {object} dto.BudgetResponse
+// @Router /budgets [post]
 func (h *BudgetHandler) Create(c echo.Context) error {
 	var req dto.CreateBudgetRequest
 
@@ -78,6 +87,13 @@ func (h *BudgetHandler) Create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, resp)
 }
 
+// ListBudgets godoc
+// @Summary Get budgets
+// @Tags budgets
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {array} dto.BudgetResponse
+// @Router /budgets [get]
 func (h *BudgetHandler) List(c echo.Context) error {
 	userID, err := mymiddleware.GetUserID(c)
 	if err != nil {
@@ -110,6 +126,14 @@ func (h *BudgetHandler) List(c echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 
+// GetBudgetStatus godoc
+// @Summary Get budget status
+// @Tags budgets
+// @Security BearerAuth
+// @Produce json
+// @Param month query string true "Month YYYY-MM"
+// @Success 200 {array} dto.BudgetStatusResponse
+// @Router /budgets/status [get]
 func (h *BudgetHandler) Status(c echo.Context) error {
 	userID, err := mymiddleware.GetUserID(c)
 	if err != nil {

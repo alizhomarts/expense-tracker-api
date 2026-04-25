@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "expense-tracker-api/docs"
 	"expense-tracker-api/internal/config"
 	"expense-tracker-api/internal/db"
 	httppkg "expense-tracker-api/internal/http"
@@ -13,9 +14,19 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/labstack/echo/v4"
+	echoSwagger "github.com/swaggo/echo-swagger"
 	"log"
 )
 
+// @title Expense Tracker API
+// @version 1.0
+// @description REST API for personal finance management with AI features.
+// @host localhost:8989
+// @BasePath /api/v1
+// @schemes http
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 	logger.Init()
 
@@ -30,6 +41,7 @@ func main() {
 	runMigrations(cfg)
 
 	e := echo.New()
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	userRepo := repository.NewUserRepository(database)
 	transactionRepo := repository.NewTransactionRepository(database)

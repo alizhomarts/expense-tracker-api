@@ -1,0 +1,686 @@
+basePath: /api/v1
+definitions:
+  dto.AIBudgetAlertsResponse:
+    properties:
+      alerts:
+        items:
+          type: string
+        type: array
+    type: object
+  dto.AIInsightsResponse:
+    properties:
+      insights:
+        items:
+          type: string
+        type: array
+    type: object
+  dto.AIParseRequest:
+    properties:
+      text:
+        type: string
+    type: object
+  dto.AIParseResponse:
+    properties:
+      amount:
+        type: number
+      category:
+        type: string
+      description:
+        type: string
+      intent:
+        type: string
+    type: object
+  dto.AIReceiptParseRequest:
+    properties:
+      text:
+        type: string
+    type: object
+  dto.AuthResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  dto.BudgetResponse:
+    properties:
+      amount:
+        type: number
+      category_id:
+        type: string
+      category_name:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      month:
+        type: string
+      user_id:
+        type: string
+    type: object
+  dto.BudgetStatusResponse:
+    properties:
+      budget_amount:
+        type: number
+      budget_id:
+        type: string
+      category_id:
+        type: string
+      category_name:
+        type: string
+      is_exceeded:
+        type: boolean
+      month:
+        type: string
+      remaining:
+        type: number
+      spent_amount:
+        type: number
+      usage_percent:
+        type: number
+    type: object
+  dto.CategoryResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+      user_id:
+        type: string
+    type: object
+  dto.CategorySummaryResponse:
+    properties:
+      category_id:
+        type: string
+      category_name:
+        type: string
+      total:
+        type: number
+    type: object
+  dto.CreateBudgetRequest:
+    properties:
+      amount:
+        type: number
+      category_id:
+        type: string
+      month:
+        type: string
+    type: object
+  dto.CreateCategoryRequest:
+    properties:
+      name:
+        type: string
+      type:
+        type: string
+    type: object
+  dto.CreateTransactionRequest:
+    properties:
+      amount:
+        type: number
+      category_id:
+        type: string
+      description:
+        type: string
+      type:
+        type: string
+    type: object
+  dto.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  dto.MonthlySummaryResponse:
+    properties:
+      balance:
+        type: number
+      month:
+        type: string
+      total_expense:
+        type: number
+      total_income:
+        type: number
+    type: object
+  dto.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    type: object
+  dto.RegisterRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      password:
+        type: string
+    type: object
+  dto.SummaryResponse:
+    properties:
+      balance:
+        type: number
+      total_expense:
+        type: number
+      total_income:
+        type: number
+    type: object
+  dto.TransactionResponse:
+    properties:
+      amount:
+        type: number
+      category_id:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      type:
+        type: string
+      user_id:
+        type: string
+    type: object
+  dto.UpdateTransactionRequest:
+    properties:
+      amount:
+        type: number
+      category_id:
+        type: string
+      description:
+        type: string
+      type:
+        type: string
+    type: object
+  dto.UserResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+    type: object
+host: localhost:8989
+info:
+  contact: {}
+  description: REST API for personal finance management with AI features.
+  title: Expense Tracker API
+  version: "1.0"
+paths:
+  /ai/budget-alerts:
+    get:
+      parameters:
+      - description: Month YYYY-MM
+        in: query
+        name: month
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AIBudgetAlertsResponse'
+      security:
+      - BearerAuth: []
+      summary: Get AI budget alerts
+      tags:
+      - ai
+  /ai/insights:
+    get:
+      parameters:
+      - description: Month YYYY-MM
+        in: query
+        name: month
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AIInsightsResponse'
+      security:
+      - BearerAuth: []
+      summary: Get AI insights
+      tags:
+      - ai
+  /ai/parse:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Text
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AIParseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AIParseResponse'
+      security:
+      - BearerAuth: []
+      summary: Parse transaction from text
+      tags:
+      - ai
+  /ai/receipt-to-transactions:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Receipt text
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AIReceiptParseRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/dto.TransactionResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Convert receipt to multiple transactions
+      tags:
+      - ai
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return access and refresh tokens
+      parameters:
+      - description: Login request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login user
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Refresh request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AuthResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Refresh tokens
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Register request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register user
+      tags:
+      - auth
+  /budgets:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.BudgetResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get budgets
+      tags:
+      - budgets
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Budget
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateBudgetRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.BudgetResponse'
+      security:
+      - BearerAuth: []
+      summary: Create budget
+      tags:
+      - budgets
+  /budgets/status:
+    get:
+      parameters:
+      - description: Month YYYY-MM
+        in: query
+        name: month
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.BudgetStatusResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get budget status
+      tags:
+      - budgets
+  /categories:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.CategoryResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get categories
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Category
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.CategoryResponse'
+      security:
+      - BearerAuth: []
+      summary: Create category
+      tags:
+      - categories
+  /summary:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SummaryResponse'
+      security:
+      - BearerAuth: []
+      summary: Get summary
+      tags:
+      - summary
+  /summary/categories:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.CategorySummaryResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get category summary
+      tags:
+      - summary
+  /summary/monthly:
+    get:
+      parameters:
+      - description: Month YYYY-MM
+        in: query
+        name: month
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MonthlySummaryResponse'
+      security:
+      - BearerAuth: []
+      summary: Get monthly summary
+      tags:
+      - summary
+  /transactions:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.TransactionResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get transactions
+      tags:
+      - transactions
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Transaction
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.TransactionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create transaction
+      tags:
+      - transactions
+  /transactions/{id}:
+    delete:
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Delete transaction
+      tags:
+      - transactions
+    get:
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TransactionResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get transaction by ID
+      tags:
+      - transactions
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TransactionResponse'
+      security:
+      - BearerAuth: []
+      summary: Update transaction
+      tags:
+      - transactions
+  /users/me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get current user
+      tags:
+      - users
+schemes:
+- http
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

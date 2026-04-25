@@ -23,6 +23,13 @@ func NewSummaryHandler(summaryService *service.SummaryService) *SummaryHandler {
 	}
 }
 
+// GetSummary godoc
+// @Summary Get summary
+// @Tags summary
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} dto.SummaryResponse
+// @Router /summary [get]
 func (h *SummaryHandler) GetSummary(c echo.Context) error {
 	userID, err := mymiddleware.GetUserID(c)
 	if err != nil {
@@ -59,6 +66,13 @@ func (h *SummaryHandler) GetSummary(c echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 
+// GetCategorySummary godoc
+// @Summary Get category summary
+// @Tags summary
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {array} dto.CategorySummaryResponse
+// @Router /summary/categories [get]
 func (h *SummaryHandler) GetCategorySummary(c echo.Context) error {
 	userID, err := mymiddleware.GetUserID(c)
 	if err != nil {
@@ -95,6 +109,14 @@ func (h *SummaryHandler) GetCategorySummary(c echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 
+// GetMonthlySummary godoc
+// @Summary Get monthly summary
+// @Tags summary
+// @Security BearerAuth
+// @Produce json
+// @Param month query string true "Month YYYY-MM"
+// @Success 200 {object} dto.MonthlySummaryResponse
+// @Router /summary/monthly [get]
 func (h *SummaryHandler) GetMonthlySummary(c echo.Context) error {
 	userID, err := mymiddleware.GetUserID(c)
 	if err != nil {

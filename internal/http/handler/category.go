@@ -24,6 +24,15 @@ func NewCategoryHandler(categoryService *service.CategoryService) *CategoryHandl
 	}
 }
 
+// CreateCategory godoc
+// @Summary Create category
+// @Tags categories
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body dto.CreateCategoryRequest true "Category"
+// @Success 201 {object} dto.CategoryResponse
+// @Router /categories [post]
 func (h *CategoryHandler) Create(c echo.Context) error {
 	var req dto.CreateCategoryRequest
 
@@ -80,6 +89,13 @@ func (h *CategoryHandler) Create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, resp)
 }
 
+// ListCategories godoc
+// @Summary Get categories
+// @Tags categories
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {array} dto.CategoryResponse
+// @Router /categories [get]
 func (h *CategoryHandler) List(c echo.Context) error {
 	userID, err := mymiddleware.GetUserID(c)
 	if err != nil {

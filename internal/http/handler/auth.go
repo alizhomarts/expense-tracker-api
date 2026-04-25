@@ -19,6 +19,15 @@ func NewAuthHandler(service *service.AuthService) *AuthHandler {
 	return &AuthHandler{service: service}
 }
 
+// Register godoc
+// @Summary Register user
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body dto.RegisterRequest true "Register request"
+// @Success 201 {object} dto.UserResponse
+// @Failure 400 {object} map[string]string
+// @Router /auth/register [post]
 func (h *AuthHandler) Register(c echo.Context) error {
 	var req dto.RegisterRequest
 
@@ -67,6 +76,17 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	return c.JSON(http.StatusCreated, resp)
 }
 
+// Login godoc
+// @Summary Login user
+// @Description Authenticate user and return access and refresh tokens
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body dto.LoginRequest true "Login request"
+// @Success 200 {object} dto.AuthResponse
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Router /auth/login [post]
 func (h *AuthHandler) Login(c echo.Context) error {
 	var req dto.LoginRequest
 
@@ -112,6 +132,15 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 
+// Refresh godoc
+// @Summary Refresh tokens
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body dto.RefreshTokenRequest true "Refresh request"
+// @Success 200 {object} dto.AuthResponse
+// @Failure 401 {object} map[string]string
+// @Router /auth/refresh [post]
 func (h *AuthHandler) Refresh(c echo.Context) error {
 	var req dto.RefreshTokenRequest
 

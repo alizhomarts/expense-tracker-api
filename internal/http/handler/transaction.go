@@ -25,6 +25,16 @@ func NewTransactionHandler(service *service.TransactionService) *TransactionHand
 	}
 }
 
+// CreateTransaction godoc
+// @Summary Create transaction
+// @Tags transactions
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body dto.CreateTransactionRequest true "Transaction"
+// @Success 201 {object} dto.TransactionResponse
+// @Failure 400 {object} map[string]string
+// @Router /transactions [post]
 func (h *TransactionHandler) Create(c echo.Context) error {
 	var req dto.CreateTransactionRequest
 
@@ -88,6 +98,15 @@ func (h *TransactionHandler) Create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, resp)
 }
 
+// GetTransaction godoc
+// @Summary Get transaction by ID
+// @Tags transactions
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Transaction ID"
+// @Success 200 {object} dto.TransactionResponse
+// @Failure 404 {object} map[string]string
+// @Router /transactions/{id} [get]
 func (h *TransactionHandler) GetByID(c echo.Context) error {
 	userID, err := mymiddleware.GetUserID(c)
 	if err != nil {
@@ -160,6 +179,13 @@ func (h *TransactionHandler) GetByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 
+// ListTransactions godoc
+// @Summary Get transactions
+// @Tags transactions
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {array} dto.TransactionResponse
+// @Router /transactions [get]
 func (h *TransactionHandler) List(c echo.Context) error {
 	userID, err := mymiddleware.GetUserID(c)
 	if err != nil {
@@ -206,6 +232,16 @@ func (h *TransactionHandler) List(c echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 
+// UpdateTransaction godoc
+// @Summary Update transaction
+// @Tags transactions
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "Transaction ID"
+// @Param request body dto.UpdateTransactionRequest true "Update data"
+// @Success 200 {object} dto.TransactionResponse
+// @Router /transactions/{id} [put]
 func (h *TransactionHandler) Update(c echo.Context) error {
 	var req dto.UpdateTransactionRequest
 
@@ -295,6 +331,13 @@ func (h *TransactionHandler) Update(c echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 
+// DeleteTransaction godoc
+// @Summary Delete transaction
+// @Tags transactions
+// @Security BearerAuth
+// @Param id path string true "Transaction ID"
+// @Success 204
+// @Router /transactions/{id} [delete]
 func (h *TransactionHandler) Delete(c echo.Context) error {
 	userID, err := mymiddleware.GetUserID(c)
 	if err != nil {

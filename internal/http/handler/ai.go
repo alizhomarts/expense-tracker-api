@@ -25,6 +25,15 @@ func NewAIHandler(aiService *service.AIService) *AIHandler {
 	}
 }
 
+// Parse godoc
+// @Summary Parse transaction from text
+// @Tags ai
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body dto.AIParseRequest true "Text"
+// @Success 200 {object} dto.AIParseResponse
+// @Router /ai/parse [post]
 func (h *AIHandler) Parse(c echo.Context) error {
 	var req dto.AIParseRequest
 
@@ -139,6 +148,14 @@ func (h *AIHandler) ParseAndCreate(c echo.Context) error {
 	return c.JSON(http.StatusCreated, resp)
 }
 
+// Insights godoc
+// @Summary Get AI insights
+// @Tags ai
+// @Security BearerAuth
+// @Produce json
+// @Param month query string true "Month YYYY-MM"
+// @Success 200 {object} dto.AIInsightsResponse
+// @Router /ai/insights [get]
 func (h *AIHandler) Insights(c echo.Context) error {
 	userID, err := mymiddleware.GetUserID(c)
 	if err != nil {
@@ -186,6 +203,14 @@ func (h *AIHandler) Insights(c echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 
+// BudgetAlerts godoc
+// @Summary Get AI budget alerts
+// @Tags ai
+// @Security BearerAuth
+// @Produce json
+// @Param month query string true "Month YYYY-MM"
+// @Success 200 {object} dto.AIBudgetAlertsResponse
+// @Router /ai/budget-alerts [get]
 func (h *AIHandler) BudgetAlerts(c echo.Context) error {
 	userID, err := mymiddleware.GetUserID(c)
 	if err != nil {
@@ -297,6 +322,15 @@ func (h *AIHandler) ReceiptToTransaction(c echo.Context) error {
 	return c.JSON(http.StatusCreated, resp)
 }
 
+// ReceiptToTransactions godoc
+// @Summary Convert receipt to multiple transactions
+// @Tags ai
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body dto.AIReceiptParseRequest true "Receipt text"
+// @Success 201 {array} dto.TransactionResponse
+// @Router /ai/receipt-to-transactions [post]
 func (h *AIHandler) ReceiptToTransactions(c echo.Context) error {
 	var req dto.AIReceiptParseRequest
 

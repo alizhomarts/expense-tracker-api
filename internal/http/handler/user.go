@@ -23,6 +23,14 @@ func NewUserHandler(service *service.UserService) *UserHandler {
 	}
 }
 
+// GetMe godoc
+// @Summary Get current user
+// @Tags users
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} dto.UserResponse
+// @Failure 401 {object} map[string]string
+// @Router /users/me [get]
 func (h *UserHandler) GetMe(c echo.Context) error {
 	userID, err := mymiddleware.GetUserID(c)
 	if err != nil {
